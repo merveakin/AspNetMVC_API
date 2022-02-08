@@ -11,10 +11,13 @@ using AspNetMVC_API_Entity.Models;
 
 namespace AspNetMVC_API.Controllers
 {
+    //[System.Web.Http.RoutePrefix("ogrenci")]
+
     public class StudentController : ApiController
     {
         //GLOBAL ZONE
         StudentRepo myStudentRepo = new StudentRepo();
+        //[System.Web.Http.Route("")]
         public ResponseData GetAll()
         {
             try
@@ -67,73 +70,32 @@ namespace AspNetMVC_API.Controllers
                 };
             }
         }
-        //public ResponseData GetDetail(int id)
-        //{
-        //    try
-        //    {
-        //        var student = myStudentRepo.GetById(id);
-        //        if (student == null)
-        //        {
-        //            throw new Exception("Gönderilen id'ye ait öğrenci bulunamadı!");
-        //        }
-        //        return new ResponseData()
-        //        {
-        //            Success = true,
-        //            Message = "Kayıt bulundu",
-        //            Data = new
-        //            {
-        //                student.Id,
-        //                student.Name,
-        //                student.Surname,
-        //                student.RegisterDate
-        //            }
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return new ResponseData()
-        //        {
-        //            Success = false,
-        //            Message = ex.Message
-        //        };
-        //    }
-        //}
-        public ResponseData GetById(int id)
+        [System.Web.Http.Route("detay/{id:int:min(1)}")]
+        public ResponseData GetDetail(int id)
         {
             try
             {
-                if (id > 0)
+                var student = myStudentRepo.GetById(id);
+                if (student == null)
                 {
-                    var student = myStudentRepo.GetById(id);
-                    if (student == null)
+                    throw new Exception("Gönderilen id'ye ait öğrenci bulunamadı!");
+                }
+                return new ResponseData()
+                {
+                    Success = true,
+                    Message = "Kayıt bulundu",
+                    Data = new
                     {
-                        throw new Exception($"{id} değerinde bir kayıt bulunamadı!");
+                        student.Id,
+                        student.Name,
+                        student.Surname,
+                        student.RegisterDate
                     }
-                    return new ResponseData()
-                    {
-                        Success = true,
-                        Message = "Kayıt bulundu",
-                        Data = new
-                        {
-                            student.Id,
-                            student.Name,
-                            student.Surname,
-                            student.RegisterDate
-                        }
-                    };
-                }
-                else
-                {
-                    return new ResponseData()
-                    {
-                        Success = false,
-                        Message = "Negatif değer gönderilemez!"
-                    };
-                }
+                };
             }
             catch (Exception ex)
             {
+
                 return new ResponseData()
                 {
                     Success = false,
@@ -141,6 +103,48 @@ namespace AspNetMVC_API.Controllers
                 };
             }
         }
+        //public ResponseData GetById(int id)
+        //{
+        //    try
+        //    {
+        //        if (id > 0)
+        //        {
+        //            var student = myStudentRepo.GetById(id);
+        //            if (student == null)
+        //            {
+        //                throw new Exception($"{id} değerinde bir kayıt bulunamadı!");
+        //            }
+        //            return new ResponseData()
+        //            {
+        //                Success = true,
+        //                Message = "Kayıt bulundu",
+        //                Data = new
+        //                {
+        //                    student.Id,
+        //                    student.Name,
+        //                    student.Surname,
+        //                    student.RegisterDate
+        //                }
+        //            };
+        //        }
+        //        else
+        //        {
+        //            return new ResponseData()
+        //            {
+        //                Success = false,
+        //                Message = "Negatif değer gönderilemez!"
+        //            };
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ResponseData()
+        //        {
+        //            Success = false,
+        //            Message = ex.Message
+        //        };
+        //    }
+        //}
         [System.Web.Http.HttpPost]
         //public ResponseData Insert([FromUri] StudentViewModel model)
         public ResponseData Insert([FromBody] StudentViewModel model)
