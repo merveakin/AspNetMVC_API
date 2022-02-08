@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using AspNetMVC_API.Models.NewModels;
+using AspNetMVC_API.Models.ViewModels;
 using AspNetMVC_API_BLL.Repository;
 using AspNetMVC_API_Entity.Models;
 
@@ -66,7 +67,38 @@ namespace AspNetMVC_API.Controllers
                 };
             }
         }
+        //public ResponseData GetDetail(int id)
+        //{
+        //    try
+        //    {
+        //        var student = myStudentRepo.GetById(id);
+        //        if (student == null)
+        //        {
+        //            throw new Exception("Gönderilen id'ye ait öğrenci bulunamadı!");
+        //        }
+        //        return new ResponseData()
+        //        {
+        //            Success = true,
+        //            Message = "Kayıt bulundu",
+        //            Data = new
+        //            {
+        //                student.Id,
+        //                student.Name,
+        //                student.Surname,
+        //                student.RegisterDate
+        //            }
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
 
+        //        return new ResponseData()
+        //        {
+        //            Success = false,
+        //            Message = ex.Message
+        //        };
+        //    }
+        //}
         public ResponseData GetById(int id)
         {
             try
@@ -98,6 +130,129 @@ namespace AspNetMVC_API.Controllers
                         Success = false,
                         Message = "Negatif değer gönderilemez!"
                     };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseData()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        [System.Web.Http.HttpPost]
+        //public ResponseData Insert([FromUri] StudentViewModel model)
+        public ResponseData Insert([FromBody] StudentViewModel model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return new ResponseData()
+                    {
+                        Success = false,
+                        Message = "Ekleme işlemi yapabilmemiz için verilerinizi düzgün göndermeniz gerekiyor!"
+                    };
+                }
+                Student newStudent = new Student()
+                {
+                    Name = model.name,
+                    Surname = model.surname,
+                    RegisterDate = model.registerdate
+                };
+                if (myStudentRepo.Insert(newStudent) > 0)
+                {
+                    return new ResponseData()
+                    {
+                        Success = true,
+                        Message = $"Yeni öğrenci eklendi. Id={newStudent.Id}"
+                    };
+                }
+                else
+                {
+                    throw new Exception("Öğrenci ekleme başarısız!");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new ResponseData()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        [System.Web.Http.HttpPost]
+        public ResponseData Update([FromBody]StudentViewModel model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return new ResponseData()
+                    {
+                        Success = false,
+                        Message = "Güncelleme yapabilmek için veri girişi gereklidir!"
+                    };
+                }
+                var student = myStudentRepo.GetById(model.id);
+                if (student == null)
+                {
+                    return new ResponseData()
+                    {
+                        Success = false,
+                        Message = "Öğrenci bulunamadı. Güncelleme başarısız!"
+                    };
+                }
+
+                student.Name = model.name;
+                student.Surname = model.surname;
+                if (myStudentRepo.Update() > 0)
+                {
+                    return new ResponseData()
+                    {
+                        Success = true,
+                        Message = "Güncelleme işlemi başarılıdır."
+                    };
+                }
+                else
+                {
+                    throw new Exception("Öğrenci güncelleme işlemi beklenmedik  bir hata nedeniyle başarısız oldu!");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new ResponseData()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        [System.Web.Http.HttpPost]
+        public ResponseData Delete(int id)
+        {
+            try
+            {
+                var student = myStudentRepo.GetById(id);
+                if (student == null)
+                {
+                    throw new Exception("Gönderilen id'ye ait öğrenci bulunamadı! Silme işlemi başarısız!");
+                }
+                if (myStudentRepo.Delete(student) > 0)
+                {
+                    return new ResponseData()
+                    {
+                        Success = true,
+                        Message = "Kayıt Silindi!"
+                    };
+                }
+                else
+                {
+                    throw new Exception("Beklenmedik bir hata nedeniyle kayıt silinemedi!");
                 }
             }
             catch (Exception ex)
