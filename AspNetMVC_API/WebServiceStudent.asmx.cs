@@ -3,6 +3,7 @@ using AspNetMVC_API_Entity.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
@@ -21,6 +22,49 @@ namespace AspNetMVC_API
     {
         //GLOBAL ZONE
         StudentRepo myStudentRepo = new StudentRepo();
+        private bool IsAuthenticated
+        {
+            get
+            {
+                bool result = false;
+                try
+                {
+                    string authorization = "";
+                    authorization = HttpContext.Current.Request.Headers["Authorization"];
+
+                    if (authorization != null)
+                    {
+                        authorization = authorization.Replace("Basic", "");
+                        byte[] byteArray = Convert.FromBase64String(authorization);
+                        string usernamepassword = System.Text.Encoding.UTF8.GetString(byteArray);
+                        //merve:12345
+                        bool usernameResult = usernamepassword.Split(':').First()
+                            .Equals(ConfigurationManager.AppSettings["USERNAME"].ToString());
+
+                        bool passwordResult = usernamepassword.Split(':').Last()
+                            .Equals(ConfigurationManager.AppSettings["PASSWORD"].ToString());
+
+                        //USERNAME VE PASSWORD doğru geldiyse kontrol etsin RESULT'a true atasın. Doğru değilse FALSE atasın.
+                        result = (usernameResult && passwordResult) ? true : false;
+                    }
+                    return result;
+                }
+                catch (Exception)
+                {
+                    result = false;
+                    return result;
+                }
+            }
+        }
+
+        private void CheckCredentials()
+        {
+            if (!IsAuthenticated)
+            {
+                throw new Exception("Kullanıcı adı veya şifre hatalıdır.Tekrar deneyiniz!");
+            }
+        }
+
         [WebMethod]
         public string HelloWorld()
         {
@@ -32,6 +76,7 @@ namespace AspNetMVC_API
         {
             try
             {
+                CheckCredentials();
                 List<Student> list = myStudentRepo.GetAll();
                 return list;
             }
@@ -47,6 +92,7 @@ namespace AspNetMVC_API
         {
             try
             {
+                CheckCredentials();
                 if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(surname))
                 {
                     throw new Exception("name surname alanlarına mutlaka veri girilmelidir!");
@@ -86,6 +132,7 @@ namespace AspNetMVC_API
         {
             try
             {
+                CheckCredentials();
                 if (id > 0)
                 {
                     Student student = myStudentRepo.GetById(id);
@@ -117,6 +164,7 @@ namespace AspNetMVC_API
         [WebMethod]
         public string Update(int currentid, string newname, string newsurname)
         {
+            CheckCredentials();
             try
             {
                 if (currentid <= 0)
@@ -162,4 +210,3 @@ namespace AspNetMVC_API
         }
     }
 }
- 
